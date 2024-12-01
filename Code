@@ -1,0 +1,53 @@
+(function() {
+    let clickPoints = [];
+    let isCapturing = true;
+
+    const onClick = (event) => {
+        if (!isCapturing) return;
+
+        clickPoints.push({ x: event.clientX, y: event.clientY });
+        console.log(`کلیک شماره ${clickPoints.length}: (${event.clientX}, ${event.clientY})`);
+
+        if (clickPoints.length >= 5) {
+            isCapturing = false;
+            document.removeEventListener('click', onClick);
+            console.log("مختصات‌ها ثبت شدند:", clickPoints);
+
+            // محاسبه نقطه میانگین
+            const avgX = Math.round(clickPoints.reduce((sum, p) => sum + p.x, 0) / clickPoints.length);
+            const avgY = Math.round(clickPoints.reduce((sum, p) => sum + p.y, 0) / clickPoints.length);
+            console.log(`نقطه هدف: (${avgX}, ${avgY})`);
+
+            // شروع کلیک‌ها
+            startClicks(avgX, avgY);
+        }
+    };
+
+    const startClicks = (targetX, targetY) => {
+        const clickInterval = 200; // فاصله بین کلیک‌ها به میلی‌ثانیه
+        const clickCount = 100; // تعداد کلیک‌ها
+
+        let count = 0;
+        const interval = setInterval(() => {
+            if (count >= clickCount) {
+                clearInterval(interval);
+                console.log("کلیک‌ها به پایان رسید.");
+                return;
+            }
+
+            const clickEvent = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                clientX: targetX,
+                clientY: targetY
+            });
+
+            document.elementFromPoint(targetX, targetY).dispatchEvent(clickEvent);
+            count++;
+            console.log(`کلیک شماره ${count} انجام شد.`);
+        }, clickInterval);
+    };
+
+    console.log("لطفاً 5 بار روی نقاط دلخواه کلیک کنید تا نقطه هدف مشخص شود.");
+    document.addEventListener('click', onClick);
+})();
